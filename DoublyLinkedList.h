@@ -43,10 +43,9 @@ public:
     Node* head;
     Node* tail;
     int doublyLinkedListSize;
-    int allBlocksInUse;
     int blocksDeleted;
 
-    DoublyLinkedList() : head(nullptr), tail(nullptr), doublyLinkedListSize(0), blocksDeleted(0), allBlocksInUse(1) {}
+    DoublyLinkedList() : head(nullptr), tail(nullptr), doublyLinkedListSize(0), blocksDeleted(0) {}
 
 
     ~DoublyLinkedList() {
@@ -138,7 +137,6 @@ public:
         }
         else
             node->blocksInUse++;
-        allBlocksInUse++;
         return nodeCreated;
     }
 
@@ -150,7 +148,7 @@ public:
             counter += current->blocksInUse;
             current = current->next;
         }
-        return counter;
+        return counter - blocksDeleted;
     }
 
 
@@ -158,6 +156,8 @@ public:
         Node* node = tail;
         while (node != nullptr) {
             for (int blockNumber = node->blocksInUse - 1; blockNumber >= 0; blockNumber--) {
+                if (node->blocks[blockNumber].deleted)
+                    continue;
                 for (int selectorNumber = 0; selectorNumber < node->blocks[blockNumber].selectorsCount; selectorNumber++) {
                     if (node->blocks[blockNumber].selectors[selectorNumber]->data == selectorName) {
                         for (int attributeNumber = 0; attributeNumber < node->blocks[blockNumber].attributesCount; attributeNumber++) {
@@ -176,8 +176,10 @@ public:
     }
 
 
-    void PrintAttValue(const String& sectionNumber, const String& attName, int nodeNumber, int blockNumber) {
+    void PrintAttValue(const String& sectionNumber, const String& attName, int nodeNumber, int blockNumber) const {
         Node* node = nodeNumber > doublyLinkedListSize / 2 ? TraverseFromEnd(nodeNumber) : TraverseFromStart(nodeNumber);
+        if (node->blocks[blockNumber].deleted)
+            return;
         int attributesCount = node->blocks[blockNumber].attributesCount;
         for (int i = 0; i < attributesCount; i++) {
             if (node->blocks[blockNumber].attributes[i]->data.name == attName) {
@@ -188,11 +190,13 @@ public:
     }
 
 
-    void CountAttribute(const String& attName) {
+    void CountAttribute(const String& attName) const {
         Node* node = head;
         int counter = 0;
         while (node != nullptr) {
             for (int blockNumber = 0; blockNumber < node->blocksInUse; blockNumber++) {
+                if (node->blocks[blockNumber].deleted)
+                    continue;
                 for (int attributeNumber = 0; attributeNumber < node->blocks[blockNumber].attributesCount; attributeNumber++) {
                     if (node->blocks[blockNumber].attributes[attributeNumber]->data.name == attName) {
                         counter++;
@@ -206,11 +210,13 @@ public:
     }
 
 
-    void CountSelector(const String& selector) {
+    void CountSelector(const String& selector) const {
         Node* node = head;
         int counter = 0;
         while (node != nullptr) {
             for (int blockNumber = 0; blockNumber < node->blocksInUse; blockNumber++) {
+                if (node->blocks[blockNumber].deleted)
+                    continue;
                 for (int selectorNumber = 0; selectorNumber < node->blocks[blockNumber].selectorsCount; selectorNumber++) {
                     if (node->blocks[blockNumber].selectors[selectorNumber]->data == selector) {
                         counter++;
@@ -224,14 +230,15 @@ public:
     }
 
 
-    void AddSelector(const String& selector, int currentNode, int currentBlock) {
+    void AddSelector(const String& selector, int currentNode, int currentBlock) const {
         Node* current = currentNode > doublyLinkedListSize / 2 ? TraverseFromEnd(currentNode) : TraverseFromStart(currentNode);
         current->blocks[currentBlock].selectors.PushBack(selector);
         current->blocks[currentBlock].selectorsCount++;
+        current->blocks[currentBlock].deleted = false;
     }
 
 
-    bool FindAttribute(const Attribute& attribute, int currentNode, int currentBlock) {
+    bool FindAttribute(const Attribute& attribute, int currentNode, int currentBlock) const {
         Node* current = currentNode > doublyLinkedListSize / 2 ? TraverseFromEnd(currentNode) : TraverseFromStart(currentNode);
         int attributesToCheck = current->blocks[currentBlock].attributesCount;
         for (int i = 0; i < attributesToCheck; i++) {
@@ -244,44 +251,36 @@ public:
     }
 
 
-    void AddAttribute(const Attribute& attribute, int currentNode, int currentBlock) {
+    void AddAttribute(const Attribute& attribute, int currentNode, int currentBlock) const {
         Node* current = currentNode > doublyLinkedListSize / 2 ? TraverseFromEnd(currentNode) : TraverseFromStart(currentNode);
         current->blocks[currentBlock].attributes.PushBack(attribute);
         current->blocks[currentBlock].attributesCount++;
     }
 
 
-    void RemoveLastBlock(Node* node) {
-        node->blocksInUse--;
-        allBlocksInUse--;
-        if (node->blocksInUse <= 0)
-            RemoveNode(node);
+    void RemoveBlock(const String& section, int nodeNumber, int blockNumber, bool printOutput) {
+        Node* current = nodeNumber > doublyLinkedListSize / 2 ? TraverseFromEnd(nodeNumber) : TraverseFromStart(nodeNumber);
+        if (current->blocks[blockNumber].deleted)
+            return;
+        current->blocks[blockNumber].deleted = true;
+        blocksDeleted++;
+        if (printOutput)
+            cout << section << ",D,* == deleted\n";
     }
 
 
-    bool RemoveBlock(int nodeNumber, int blockNumber) {
-        if (nodeNumber >= doublyLinkedListSize)
-            return false;
-
-        Node* current = (nodeNumber > doublyLinkedListSize / 2 ? TraverseFromEnd(nodeNumber) : TraverseFromStart(nodeNumber));
-
-        if (blockNumber >= current->blocksInUse)
-            return false;
-
-        if (current->blocksInUse == 1) {
-            RemoveNode(current);
-
-            return true;
-        }
-
-        if (current->blocksInUse > blockNumber) {
-            for (int i = blockNumber + 1; i < current->blocksInUse; i++) {
-                current->blocks[i - 1] = current->blocks[i];
+    void RemoveAttribute(const String& section, const String& attributeName, int nodeNumber, int blockNumber) {
+        Node* current = nodeNumber > doublyLinkedListSize / 2 ? TraverseFromEnd(nodeNumber) : TraverseFromStart(nodeNumber);
+        if (current->blocks[blockNumber].deleted)
+            return;
+        for (int i = 0; i < current->blocks[blockNumber].attributesCount; i++) {
+            if (current->blocks[blockNumber].attributes[i]->data.name == attributeName) {
+                current->blocks[blockNumber].attributes.Pop(current->blocks[blockNumber].attributes[i]);
+                current->blocks[blockNumber].attributesCount--;
+                cout << section << ",D," << attributeName << " == deleted\n";
+                return;
             }
         }
-        current->blocksInUse--;
-        allBlocksInUse--;
-        return false;
     }
 
 

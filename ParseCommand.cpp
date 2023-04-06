@@ -62,11 +62,15 @@ void SeparateArguments(const String& input, String arguments[]) {
 
 void PrintSelector(DoublyLinkedList& mainList, const String& firstArgument, const String& secondArgument) {
 	if (isdigit(firstArgument[0])) {
-		int sectionNumber = atoi(firstArgument.GetArray()) - 1;
+		int sectionNumber = atoi(firstArgument.GetArray()) - 1 + mainList.blocksDeleted;
+
 		int nodeNumber = sectionNumber / BLOCKS_IN_ARRAY;
 		int blockNumber = sectionNumber % BLOCKS_IN_ARRAY;
 
 		if (nodeNumber >= mainList.doublyLinkedListSize || blockNumber >= mainList[nodeNumber]->blocksInUse)
+			return;
+
+		if (mainList[nodeNumber]->blocks[blockNumber].deleted)
 			return;
 
 		if (secondArgument[0] == '?') {
@@ -87,16 +91,20 @@ void PrintSelector(DoublyLinkedList& mainList, const String& firstArgument, cons
 
 void PrintAttribute(DoublyLinkedList& mainList, const String& firstArgument, const String& secondArgument) {
 	if (isdigit(firstArgument[0])) {
-		int sectionNumber = atoi(firstArgument.GetArray()) - 1;
+		int sectionNumber = atoi(firstArgument.GetArray()) - 1 + mainList.blocksDeleted;
+
 		int nodeNumber = sectionNumber / BLOCKS_IN_ARRAY;
 		int blockNumber = sectionNumber % BLOCKS_IN_ARRAY;
 
 		if (nodeNumber >= mainList.doublyLinkedListSize || blockNumber >= mainList[nodeNumber]->blocksInUse)
 			return;
 
+		if (mainList[nodeNumber]->blocks[blockNumber].deleted)
+			return;
+
 		if (secondArgument[0] == '?') {
-			if ((nodeNumber >= mainList.doublyLinkedListSize || blockNumber >= mainList[nodeNumber]->blocksInUse - 1) && (sectionNumber + 1) % BLOCKS_IN_ARRAY != 0)
-				return;
+			/*if ((nodeNumber >= mainList.doublyLinkedListSize || blockNumber >= mainList[nodeNumber]->blocksInUse - 1) && (sectionNumber + 1) % BLOCKS_IN_ARRAY != 0)
+				return;*/
 			cout << firstArgument << ",A,? == " << mainList[nodeNumber]->blocks[blockNumber].attributesCount << "\n";
 			return;
 		}
@@ -109,5 +117,22 @@ void PrintAttribute(DoublyLinkedList& mainList, const String& firstArgument, con
 
 
 void DeleteSection(DoublyLinkedList& mainList, const String& firstArgument, const String& secondArgument, InputMode* inputMode) {
-	cout << "Hej przystojniaku\n";
+	int sectionNumber = atoi(firstArgument.GetArray()) - 1 + mainList.blocksDeleted;
+
+	int nodeNumber = sectionNumber / BLOCKS_IN_ARRAY;
+	int blockNumber = sectionNumber % BLOCKS_IN_ARRAY;
+
+	if (nodeNumber >= mainList.doublyLinkedListSize || blockNumber >= mainList[nodeNumber]->blocksInUse)
+		return;
+
+	if (mainList[nodeNumber]->blocks[blockNumber].deleted)
+		return;
+
+	if (secondArgument[0] == '*') {
+		mainList.RemoveBlock(firstArgument, nodeNumber, blockNumber, true);
+		return;
+	}
+	mainList.RemoveAttribute(firstArgument, secondArgument, nodeNumber, blockNumber);
+	if (mainList[nodeNumber]->blocks[blockNumber].attributesCount == 0)
+		mainList.RemoveBlock(firstArgument, nodeNumber, blockNumber, false);
 }

@@ -9,8 +9,9 @@ public:
     LinkedList<Attribute> attributes;
     int selectorsCount;
     int attributesCount;
+    bool deleted;
 
-    Block() : selectorsCount(0), attributesCount(0) {}
+    Block() : selectorsCount(0), attributesCount(0), deleted(true) {}
 
 
     friend std::ostream& operator<<(std::ostream& os, const Block& block) {
