@@ -32,7 +32,7 @@ how much free space there is in a list node, it should be used before new nodes 
 When deleting elements, if an empty table remains, the node should be deleted. There's no need to
 move elements between nodes, connect nodes, etc.
 ## Example
-### Input
+#### Input:
 #breadcrumb  
 {  
 width: 80%;  
@@ -65,7 +65,7 @@ h1,E,color
 h1, h2, h3, h4, h5, h6 {color: #0066FF;}  
 ????  
 ?  
-### Output:  
+#### Output:  
 ? == 3  
 1,S,? == 1  
 1,S,1 == #breadcrumb  
