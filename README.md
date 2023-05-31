@@ -3,6 +3,7 @@ The goal of the task is to write a simple CSS processing engine. The program
 loads CSS sections interspersed with command sections from standard input. CSS sections should be
 be parsed and placed in appropriate structures, command sections must be parsed and executed
 writing the results to the standard output (after ==).
+
 ## List of commands
 - ???? – beginning of the command section;
 - **** - resume reading CSS;
@@ -21,16 +22,7 @@ we take the last one. If not, skip;
 - i,D,* - delete the entire section no. i (i.e. separators+attributes), after correct execution write deleted;
 - i,D,n – remove the attribute named n from the i-th section, if the operation results in an empty section, it should
 be also deleted (along with selectors if applicable), after correct execution, print deleted.
-## Implementation notes:
-Selectors and attributes should be stored as lists.
-Individual CSS sections should be stored in a doubly-linked list (to effectively
-execute the command E – the last occurrence of the attribute). To make better use of memory, the list should
-include an array of T=8 structures representing a block (where T is an adjustable constant) and a counter of currently occupied structures (due to possible deletion of elements).
-It is worth using counters to speed up operations parameterized with a cell number, i.e. i.
-When allocating a new node, an array of T Elements is created. When adding elements, depending on
-how much free space there is in a list node, it should be used before new nodes are allocated.
-When deleting elements, if an empty table remains, the node should be deleted. There's no need to
-move elements between nodes, connect nodes, etc.
+
 ## Example
 #### Input:
 #breadcrumb  
