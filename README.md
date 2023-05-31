@@ -1,5 +1,4 @@
 # CSS processing engine
-## Description
 The goal of the task is to write a simple CSS processing engine. The program
 loads CSS sections interspersed with command sections from standard input. CSS sections should be
 be parsed and placed in appropriate structures, command sections must be parsed and executed
