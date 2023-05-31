@@ -24,7 +24,7 @@ we take the last one. If not, skip;
 be also deleted (along with selectors if applicable), after correct execution, print deleted.
 ## Implementation notes:
 Selectors and attributes should be stored as lists.
-Individual CSS sections should be stored in a double-sided list (to effectively
+Individual CSS sections should be stored in a doubly-linked list (to effectively
 execute the command E – the last occurrence of the attribute). To make better use of memory, the list should
 include an array of T=8 structures representing a block (where T is an adjustable constant) and a counter of currently occupied structures (due to possible deletion of elements).
 It is worth using counters to speed up operations parameterized with a cell number, i.e. i.
