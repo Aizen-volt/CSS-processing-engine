@@ -24,6 +24,7 @@ be also deleted (along with selectors if applicable), after correct execution, p
 
 ## Example
 #### Input:
+```
 #breadcrumb  
 {  
 width: 80%;  
@@ -55,8 +56,10 @@ h1,E,color
 **** <br />
 h1, h2, h3, h4, h5, h6 {color: #0066FF;}  
 ????  
-?  
-#### Output:  
+?
+```
+#### Output: 
+```
 ? == 3  
 1,S,? == 1  
 1,S,1 == #breadcrumb  
@@ -70,3 +73,4 @@ h1,E,color == #0066CB
 2,D, color == deleted  
 ? == 1  
 ? == 2  
+```
